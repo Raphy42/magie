@@ -1,0 +1,17 @@
+{
+  "name": "sequoya",
+  "version": "1.0.0",
+  "description": "la magie",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "sequoya",
+  "license": "MIT",
+  "dependencies": {
+    "d3": "^4.8.0",
+    "express": "^4.15.2",
+    "ioredis": "^2.5.0",
+    "lodash": "latest"
+  }
+}
