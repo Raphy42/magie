@@ -22,30 +22,35 @@ console.magie = data => {
 
 server.listen(process.env.PORT || 5000);
 
-let magie = (u) => redis
-    .multi(
-        ['smembers', `user:${u}:following`],
-        ['smembers', `user:${u}:followers`],
-        ['smembers', `user:${u}:subscribers`]
-    )
-    .exec()
-    .then(results => {
+let magie = (u) => {
+    return redis
+        .pipeline()
+        .smembers(`user:${u}:following`)
+        .smembers(`user:${u}:followers`)
+        .smembers(`user:${u}:subscribers`)
+        .hmget(`user:${u}`, 'avatar', 'full_name', 'username')
+        .exec()
+        .then(results => {
+            let data = results[3][1];
             return {
                 id: u,
-                following: results[0],
-                followers: results[1],
-                subscribers: results[2]
+                following: results[0][1],
+                followers: results[1][1],
+                subscribers: results[2][1],
+                data: _.zipObject(['avatar', 'full_name', 'username'], data)
             }
-    });
+        });
+};
 
-const graph = redis
-    .sort('users')
-    .then(users => Promise.all(users.map(magie)));
-
+app.use(express.static(__dirname));
 
 app.get('/api/graph', (req, res, next) => {
-    graph
-        .then(results => res.send(results))
+    const graph = redis
+        .sort('users')
+        .then(users => Promise.all(users.map(magie)))
+        .then(results => {
+            res.send(results)
+        })
         .catch(error => res.status(500).send(error));
 });
 

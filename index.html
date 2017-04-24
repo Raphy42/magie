@@ -12,24 +12,22 @@
 <div class="chart"></div>
 
 <script type="text/javascript">
-    const API = 'https://wittycircle.com/api/profiles';
-
-    let magic_data = profiles => {
-        return profiles.profiles.map(p => p.id)
-    }
+    const API = 'http://localhost:5000/api/graph';
 
     let Request = fetch(API)
         .then(res => res.json())
         .then(profiles => {
+            console.log(profiles)
+
             d3.select(".chart")
                 .selectAll("div")
-                .data(magic_data)
+                .data(profiles)
                 .enter().append("div")
-                .style("width", function (d) {
-                    return d * 10 + "px";
+                .style("width", function (p) {
+                    return p.followers.length * 10 + "px";
                 })
-                .text(function (d) {
-                    return d;
+                .text(function (p) {
+                    return `${p.data.full_name} - ${p.followers.length}`;
                 });
         });
 </script>
